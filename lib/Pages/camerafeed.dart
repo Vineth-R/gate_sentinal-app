@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class SignupPage extends StatelessWidget {
-  const SignupPage({super.key});
+class Camerafeed extends StatelessWidget {
+  const Camerafeed({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -61,7 +61,7 @@ class SignupPage extends StatelessWidget {
       ),
       body: const Center(
         child: Text(
-          'Sign Up page!',
+          'Camera Feed page!',
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
       ),

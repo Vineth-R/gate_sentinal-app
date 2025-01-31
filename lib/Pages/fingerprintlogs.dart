@@ -29,7 +29,7 @@ class Fingerprintlogs extends StatelessWidget {
                       },
                     ),
 
-                    const SizedBox(width: 50), // Space between back button and logo
+                    const SizedBox(width: 8), // Space between back button and logo
 
                     // 🔹 Logo Image
                     SizedBox(

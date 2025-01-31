@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:gate_sentinal/Pages/home.dart';
+import 'package:gate_sentinal/Main_pages/loginpage.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class Welcomepage extends StatelessWidget {
@@ -67,7 +67,7 @@ class Welcomepage extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {
                 Navigator.push(context, 
-                MaterialPageRoute(builder: (context)=> const HomePage())
+                MaterialPageRoute(builder: (context)=> const LoginPage())
                 );
               }, 
               style: ElevatedButton.styleFrom(

@@ -66,6 +66,7 @@ flutter:
     - assets/camera.jpeg
     - assets/lock.jpeg
     - assets/mic_speaker.jpeg
+    - assets/gmail.png
   
 
   # An image asset can refer to one or more resolution-specific "variants", see

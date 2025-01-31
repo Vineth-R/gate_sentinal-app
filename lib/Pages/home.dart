@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gate_sentinal/Pages/camerafeed.dart';
 import 'package:gate_sentinal/Pages/fingerprintlogs.dart';
 import 'package:gate_sentinal/Pages/fingerprintsettings.dart';
 import 'package:gate_sentinal/Pages/videorecordings.dart';
@@ -63,6 +64,9 @@ class HomePage extends StatelessWidget {
                     iconPath: 'assets/camera.jpeg',
                     label: 'Camera',
                     onPressed: () {
+                      Navigator.push(
+                        context, 
+                        MaterialPageRoute(builder: (context)=> const Camerafeed(),));
                       print('Camera pressed');
                     },
                   ),

@@ -1,0 +1,238 @@
+import 'package:flutter/material.dart';
+import 'package:gate_sentinal/Pages/fingerprintlogs.dart';
+import 'package:gate_sentinal/Pages/fingerprintsettings.dart';
+import 'package:gate_sentinal/Pages/videorecordings.dart';
+import 'package:gate_sentinal/Pages/displaynotices.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+class HomePage extends StatelessWidget {
+  const HomePage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black, // Background Color
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(175),
+        child: ClipPath(
+          clipper: CustomAppBarClipper(),
+          child: Container(
+            color: Colors.white,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      width: 60,
+                      height: 60,
+                      child: Image.asset(
+                        'assets/image1.jpeg',
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    const SizedBox(width: 8), // Spacing between icon and text
+                    Text(
+                      "Gate Sentinel",
+                      style: GoogleFonts.acme(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 24,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(50.0), // Adjust padding for consistent layout
+        child: Column(
+          children: [
+            Expanded(
+              child: GridView.count(
+                crossAxisCount: 2,
+                mainAxisSpacing: 40,
+                crossAxisSpacing: 40,
+                childAspectRatio: 1, // Keeps the buttons square
+                children: [
+                  _buildButton(
+                    iconPath: 'assets/camera.jpeg',
+                    label: 'Camera',
+                    onPressed: () {
+                      print('Camera pressed');
+                    },
+                  ),
+                  _buildButton(
+                    iconPath: 'assets/lock.jpeg',
+                    label: 'Gate Lock',
+                    onPressed: () {
+                      print('Gate lock pressed');
+                    },
+                  ),
+                  _buildButton(
+                    iconPath: 'assets/mic_speaker.jpeg',
+                    label: 'In-Door Mic and Speaker',
+                    onPressed: () {
+                      print('Indoor mic and speaker pressed');
+                    },
+                  ),
+                  _buildButton(
+                    iconPath: 'assets/mic_speaker.jpeg',
+                    label: 'Out-Door Mic and Speaker',
+                    onPressed: () {
+                      print('Outdoor mic and speaker pressed');
+                    },
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 16), // Spacing between grid and text buttons
+
+            ///Padding for Text Buttons
+            Padding(
+              padding: const EdgeInsets.symmetric(),
+              child: Column(
+                children: [
+                  _buildTextButton(
+                    label: 'Fingerprint Settings',
+                    onPressed: () {
+                      print('Fingerprint Settings pressed');
+                      Navigator.push(context, 
+                      MaterialPageRoute(
+                        builder: (context) => const Fingerprintsettings(),
+                      ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildTextButton(
+                    label: 'Fingerprint Logs',
+                    onPressed: () {
+                      print('Fingerprint Logs pressed');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Fingerprintlogs(),
+                        ),
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildTextButton(
+                    label: 'Video Recordings',
+                    onPressed: () {
+                      print('Video Recordings pressed');
+                      Navigator.push(
+                        context, 
+                      MaterialPageRoute(
+                        builder: (context) => const Videorecordings(),
+                      ),);
+                    },
+                  ),
+                  const SizedBox(height: 8),
+                  _buildTextButton(
+                    label: 'Display Notices',
+                    onPressed: () {
+                      print('Display Notices pressed');
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const Displaynotices()
+                          ),);
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  //Text-Only Button Builder
+  Widget _buildTextButton({
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        minimumSize: const Size(700, 40),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(18),
+        ),
+      ),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          label,
+          style: GoogleFonts.amiko(
+            color: Colors.black,
+            fontSize: 16,
+          ),
+        ),
+      ),
+    );
+  }
+
+  //Icon Button Builder
+  Widget _buildButton({
+    required String iconPath,
+    required String label,
+    required VoidCallback onPressed,
+  }) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: Colors.white,
+        minimumSize: const Size(110, 110),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(4),
+        ),
+        padding: const EdgeInsets.all(6),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset(
+            iconPath,
+            height: 70,
+            width: 70,
+          ),
+          const SizedBox(height: 3),
+          Text(
+            label,
+            textAlign: TextAlign.center,
+            style: GoogleFonts.amiko(
+              color: Colors.black,
+              fontSize: 15,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Custom AppBar Shape
+class CustomAppBarClipper extends CustomClipper<Path> {
+  @override
+  Path getClip(Size size) {
+    Path path = Path();
+    path.lineTo(0, size.height);
+    path.lineTo(size.width / 2, size.height - 80);
+    path.lineTo(size.width, size.height);
+    path.lineTo(size.width, 0);
+    path.close();
+    return path;
+  }
+
+  @override
+  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+}

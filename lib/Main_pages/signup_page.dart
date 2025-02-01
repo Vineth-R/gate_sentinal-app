@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gate_sentinal/Main_pages/loginpage.dart';
 import 'package:gate_sentinal/Pages/home.dart';
@@ -11,8 +12,62 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  final _formSignupKey = GlobalKey<FormState>(); // ✅ Corrected key name
-  bool agreePersonalData = false; // ✅ Initialized the variable
+  // Controllers for form fields
+  final TextEditingController fullnamecontroller = TextEditingController();
+  final TextEditingController emailcontroller = TextEditingController();
+  final TextEditingController passwordcontroller = TextEditingController();
+
+  final _formSignupKey = GlobalKey<FormState>();
+  bool agreePersonalData = false;
+
+  @override
+  void dispose() {
+    fullnamecontroller.dispose();
+    emailcontroller.dispose();
+    passwordcontroller.dispose();
+    super.dispose();
+  }
+
+  // Firebase Registration Function
+  Future<void> registration() async {
+    if (_formSignupKey.currentState!.validate() && agreePersonalData) {
+      try {
+        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: emailcontroller.text.trim(),
+          password: passwordcontroller.text.trim(),
+        );
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registered successfully', style: TextStyle(fontSize: 20.0)),
+          ),
+        );
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } on FirebaseAuthException catch (e) {
+        String message = 'Registration failed';
+        if (e.code == 'weak-password') {
+          message = 'Password must be at least 6 characters long';
+        } else if (e.code == 'email-already-in-use') {
+          message = 'An account with this email already exists';
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.white,
+            content: Text(message, style: const TextStyle(fontSize: 18.0)),
+          ),
+        );
+      }
+    } else if (!agreePersonalData) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please agree to the processing of personal data')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,16 +124,15 @@ class _SignupPageState extends State<SignupPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Full Name Field
-              _buildTextField('Full Name', 'Enter Full Name'),
+              _buildTextField(fullnamecontroller, 'Full Name', 'Enter Full Name'),
               const SizedBox(height: 25.0),
-              // Email Field
-              _buildTextField('Email', 'Enter Email'),
+
+              _buildTextField(emailcontroller, 'Email', 'Enter Email'),
               const SizedBox(height: 25.0),
-              // Password Field
-              _buildTextField('Password', 'Enter Password', isPassword: true),
+
+              _buildTextField(passwordcontroller, 'Password', 'Enter Password', isPassword: true),
               const SizedBox(height: 20.0),
-              
+
               // Agreement Checkbox
               Row(
                 children: [
@@ -92,14 +146,8 @@ class _SignupPageState extends State<SignupPage> {
                     activeColor: Colors.white,
                     checkColor: Colors.black,
                   ),
-                  const Text(
-                    'I agree to the processing of ',
-                    style: TextStyle(color: Colors.white),
-                  ),
-                  const Text(
-                    'Personal Data',
-                    style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
-                  ),
+                  const Text('I agree to the processing of ', style: TextStyle(color: Colors.white)),
+                  const Text('Personal Data', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white)),
                 ],
               ),
               const SizedBox(height: 25.0),
@@ -108,29 +156,15 @@ class _SignupPageState extends State<SignupPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formSignupKey.currentState!.validate() && agreePersonalData) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Processing Data')),
-                      );
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-                    } else if (!agreePersonalData) {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Please agree to the processing of personal data')),
-                      );
-                    }
-                  },
+                  onPressed: registration,
                   child: const Text('Sign Up'),
                 ),
               ),
               const SizedBox(height: 25.0),
 
-              // Sign Up with Social Media
               buildSocialMediaIcons(),
-
               const SizedBox(height: 25.0),
 
-              // Already have an account?
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -153,14 +187,18 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  // Helper function to build text fields
-  Widget _buildTextField(String label, String hint, {bool isPassword = false}) {
+  // Text field builder with validation
+  Widget _buildTextField(TextEditingController controller, String label, String hint, {bool isPassword = false}) {
     return TextFormField(
+      controller: controller,
       obscureText: isPassword,
       obscuringCharacter: '*',
       validator: (value) {
         if (value == null || value.isEmpty) {
           return 'Please enter $label';
+        }
+        if (isPassword && value.length < 6) {
+          return 'Password must be at least 6 characters';
         }
         return null;
       },
@@ -186,16 +224,14 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  // Helper function for social media icons
-   Widget buildSocialMediaIcons() {
+  // Social media icons
+  Widget buildSocialMediaIcons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: const [
         Icon(Icons.facebook, color: Colors.white, size: 30),
         SizedBox(width: 20),
         Icon(Icons.email, color: Colors.white, size: 30),
-        // SizedBox(width: 20),
-        // Icon(Icons.apple, color: Colors.white, size: 30),
       ],
     );
   }
@@ -205,14 +241,16 @@ class _SignupPageState extends State<SignupPage> {
 class CustomAppBarClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
-    Path path = Path()
-      ..lineTo(0, size.height)
-      ..lineTo(size.width / 2, size.height - 80)
-      ..lineTo(size.width, size.height)
-      ..lineTo(size.width, 0)
-      ..close();
+    Path path = Path();
+    path.lineTo(0, size.height);
+    path.lineTo(size.width / 2, size.height - 80);
+    path.lineTo(size.width, size.height);
+    path.lineTo(size.width, 0);
+    path.close();
     return path;
   }
+
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
+

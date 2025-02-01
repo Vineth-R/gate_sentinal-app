@@ -1,6 +1,15 @@
-buildscript{
-    dependencies{
-        classpath 'com.google.gms:google-services: 4.4.2'
+buildscript {
+     
+        ext.kotlin_version = '2.1.0'  // Set the Kotlin version here
+    
+    repositories {
+        google()  //Add this if missing
+        mavenCentral()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath 'com.android.tools.build:gradle:7.3.0' // Use latest stable version
+        classpath 'com.google.gms:google-services:4.4.2'  // Ensure this version is added
     }
 }
 

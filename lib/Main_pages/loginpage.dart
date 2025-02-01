@@ -192,8 +192,8 @@ class _LoginPageState extends State<LoginPage> {
         Icon(Icons.facebook, color: Colors.white, size: 30),
         SizedBox(width: 20),
         Icon(Icons.email, color: Colors.white, size: 30),
-        SizedBox(width: 20),
-        Icon(Icons.apple, color: Colors.white, size: 30),
+        // SizedBox(width: 20),
+        // Icon(Icons.apple, color: Colors.white, size: 30),
       ],
     );
   }

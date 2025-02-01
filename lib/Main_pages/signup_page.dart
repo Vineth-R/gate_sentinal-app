@@ -126,7 +126,7 @@ class _SignupPageState extends State<SignupPage> {
               const SizedBox(height: 25.0),
 
               // Sign Up with Social Media
-              _buildSocialMediaRow(),
+              buildSocialMediaIcons(),
 
               const SizedBox(height: 25.0),
 
@@ -187,13 +187,15 @@ class _SignupPageState extends State<SignupPage> {
   }
 
   // Helper function for social media icons
-  Widget _buildSocialMediaRow() {
+   Widget buildSocialMediaIcons() {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: const [
         Icon(Icons.facebook, color: Colors.white, size: 30),
+        SizedBox(width: 20),
         Icon(Icons.email, color: Colors.white, size: 30),
-        Icon(Icons.apple, color: Colors.white, size: 30),
+        // SizedBox(width: 20),
+        // Icon(Icons.apple, color: Colors.white, size: 30),
       ],
     );
   }

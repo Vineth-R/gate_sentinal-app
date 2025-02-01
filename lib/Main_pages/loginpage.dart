@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gate_sentinal/Main_pages/forgetpassword.dart';
 import 'package:gate_sentinal/Main_pages/signup_page.dart';
@@ -12,8 +13,44 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
   final _formSignInKey = GlobalKey<FormState>();
   bool rememberPassword = false;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> userLogin() async {
+    if (_formSignInKey.currentState!.validate()) {
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+          email: emailController.text.trim(),
+          password: passwordController.text.trim(),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const HomePage()),
+        );
+      } on FirebaseAuthException catch (e) {
+        String errorMessage = 'Login failed';
+        if (e.code == 'user-not-found') {
+          errorMessage = 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          errorMessage = 'Wrong password.';
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(errorMessage, style: const TextStyle(fontSize: 18.0)),
+          ),
+        );
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,9 +70,7 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(width: 10),
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
-                      onPressed: () {
-                        Navigator.pop(context);
-                      },
+                      onPressed: () => Navigator.pop(context),
                     ),
                     const SizedBox(width: 50),
                     SizedBox(
@@ -66,11 +101,10 @@ class _LoginPageState extends State<LoginPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildTextField("Email", "Enter Email", false),
+              buildTextField(emailController, "Email", "Enter Email", false),
               const SizedBox(height: 25.0),
-              buildTextField("Password", "Enter Password", true),
+              buildTextField(passwordController, "Password", "Enter Password", true),
               const SizedBox(height: 15.0),
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -80,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                         value: rememberPassword,
                         onChanged: (bool? value) {
                           setState(() {
-                            rememberPassword = value!;
+                            rememberPassword = value ?? false;
                           });
                         },
                         activeColor: Colors.white,
@@ -90,29 +124,22 @@ class _LoginPageState extends State<LoginPage> {
                     ],
                   ),
                   GestureDetector(
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const Forgetpassword()),
+                    ),
                     child: const Text(
                       'Forgot password?',
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
                     ),
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const Forgetpassword()));
-                    },
                   ),
                 ],
               ),
               const SizedBox(height: 25.0),
-
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: () {
-                    if (_formSignInKey.currentState!.validate() && rememberPassword) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Processing Data')));
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => const HomePage()));
-                    } else if (!rememberPassword) {
-                      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please enter valid data')));
-                    }
-                  },
+                  onPressed: userLogin,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
@@ -125,7 +152,6 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               const SizedBox(height: 25.0),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -138,18 +164,17 @@ class _LoginPageState extends State<LoginPage> {
                 ],
               ),
               const SizedBox(height: 25.0),
-              
               buildSocialMediaIcons(),
               const SizedBox(height: 25.0),
-              
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text("Don't have an account? ", style: TextStyle(color: Colors.white70)),
                   GestureDetector(
-                    onTap: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => SignupPage()));
-                    },
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const SignupPage()),
+                    ),
                     child: const Text(
                       "Sign up",
                       style: TextStyle(fontWeight: FontWeight.bold, color: Colors.blueAccent),
@@ -164,8 +189,9 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
-  Widget buildTextField(String label, String hint, bool isPassword) {
+  Widget buildTextField(TextEditingController controller, String label, String hint, bool isPassword) {
     return TextFormField(
+      controller: controller,
       obscureText: isPassword,
       style: const TextStyle(color: Colors.white),
       validator: (value) => value == null || value.isEmpty ? 'Please enter $label' : null,
@@ -192,8 +218,6 @@ class _LoginPageState extends State<LoginPage> {
         Icon(Icons.facebook, color: Colors.white, size: 30),
         SizedBox(width: 20),
         Icon(Icons.email, color: Colors.white, size: 30),
-        // SizedBox(width: 20),
-        // Icon(Icons.apple, color: Colors.white, size: 30),
       ],
     );
   }
@@ -210,6 +234,7 @@ class CustomAppBarClipper extends CustomClipper<Path> {
     path.close();
     return path;
   }
+
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }

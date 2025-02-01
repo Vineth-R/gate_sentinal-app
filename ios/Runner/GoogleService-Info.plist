@@ -3,17 +3,17 @@
 <plist version="1.0">
 <dict>
 	<key>API_KEY</key>
-	<string>AIzaSyAL8Xo87mjMGZgt6wLK5CXO9YUkgDBmDUw</string>
+	<string>AIzaSyA9xlLZvGgrFF0lppckzVoTx_AbiwqzhDo</string>
 	<key>GCM_SENDER_ID</key>
-	<string>764593377955</string>
+	<string>569294604025</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.gateSentinal</string>
 	<key>PROJECT_ID</key>
-	<string>gatesentinal</string>
+	<string>gate-sentinal</string>
 	<key>STORAGE_BUCKET</key>
-	<string>gatesentinal.firebasestorage.app</string>
+	<string>gate-sentinal.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +25,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:764593377955:ios:4dbe4782ea00451aeca516</string>
+	<string>1:569294604025:ios:307f14206523f067314428</string>
 </dict>
 </plist>

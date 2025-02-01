@@ -1,13 +1,13 @@
 {
   "project_info": {
-    "project_number": "764593377955",
-    "project_id": "gatesentinal",
-    "storage_bucket": "gatesentinal.firebasestorage.app"
+    "project_number": "569294604025",
+    "project_id": "gate-sentinal",
+    "storage_bucket": "gate-sentinal.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:764593377955:android:2ab5bbf61a1d4e0beca516",
+        "mobilesdk_app_id": "1:569294604025:android:2f17fad943994546314428",
         "android_client_info": {
           "package_name": "com.example.gate_sentinal"
         }
@@ -15,7 +15,7 @@
       "oauth_client": [],
       "api_key": [
         {
-          "current_key": "AIzaSyBaxFOBbDHrw30PUJngYcqki7KhA7bt7Eo"
+          "current_key": "AIzaSyBDI261G80sXEHzCnnWltiganQT47YB33M"
         }
       ],
       "services": {

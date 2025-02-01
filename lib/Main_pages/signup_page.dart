@@ -40,6 +40,7 @@ class _SignupPageState extends State<SignupPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Registered successfully', style: TextStyle(fontSize: 20.0)),
+            backgroundColor: Colors.green,
           ),
         );
 
@@ -57,7 +58,7 @@ class _SignupPageState extends State<SignupPage> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            backgroundColor: Colors.white,
+            backgroundColor: Colors.black87,
             content: Text(message, style: const TextStyle(fontSize: 18.0)),
           ),
         );
@@ -161,7 +162,10 @@ class _SignupPageState extends State<SignupPage> {
                     foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
-                  child: const Text('Sign Up')
+                  child: const Text('Sign Up',
+                  style: TextStyle(
+                    fontSize: 18.0,
+                  ),)
                   ,
                 ),
               ),

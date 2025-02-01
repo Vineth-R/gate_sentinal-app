@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:gate_sentinal/Main_pages/forgotpassword.dart';
 import 'package:gate_sentinal/Main_pages/signup_page.dart';
 import 'package:gate_sentinal/Pages/home.dart';
+import 'package:gate_sentinal/Services/auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
@@ -32,6 +33,11 @@ class _LoginPageState extends State<LoginPage> {
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
         );
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successfully', style: TextStyle(fontSize: 20.0)),
+            backgroundColor: Colors.green,
+          ),);
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
@@ -46,6 +52,8 @@ class _LoginPageState extends State<LoginPage> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage, style: const TextStyle(fontSize: 18.0)),
+            backgroundColor: Colors.red,
+            
           ),
         );
       }
@@ -214,10 +222,16 @@ class _LoginPageState extends State<LoginPage> {
   Widget buildSocialMediaIcons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
+      children:  [
+        GestureDetector(
+          onTap: (){
+            AuthMethods().signInWithGoogle(context);
+          },
+          child: Icon(Icons.email, color: Colors.white, size: 30),
+          ),
         Icon(Icons.facebook, color: Colors.white, size: 30),
         SizedBox(width: 20),
-        Icon(Icons.email, color: Colors.white, size: 30),
+        
       ],
     );
   }

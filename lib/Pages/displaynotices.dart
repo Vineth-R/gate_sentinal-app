@@ -61,7 +61,7 @@ class Displaynotices extends StatelessWidget {
       ),
       body: const Center(
         child: Text(
-          'Display notices page!',
+          'Video Recordings page!',
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gate_sentinal/Main_pages/loginpage.dart';
 import 'package:gate_sentinal/Pages/home.dart';
+import 'package:gate_sentinal/Services/auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class SignupPage extends StatefulWidget {
@@ -237,10 +238,17 @@ class _SignupPageState extends State<SignupPage> {
   Widget buildSocialMediaIcons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: const [
-        Icon(Icons.facebook, color: Colors.white, size: 30),
-        SizedBox(width: 20),
-        Icon(Icons.email, color: Colors.white, size: 30),
+      children: [
+        const Icon(Icons.facebook, color: Colors.white, size: 30),
+        const SizedBox(width: 20),
+        GestureDetector(
+          onTap: (){
+            AuthMethods().signInWithGoogle(context);
+          },
+          child: Icon(Icons.email, color: Colors.white, size: 30),
+    ),
+        const SizedBox(width: 20),
+        const Icon(Icons.apple, color: Colors.white, size: 30),
       ],
     );
   }

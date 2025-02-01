@@ -223,14 +223,17 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children:  [
-        GestureDetector(
-          onTap: (){
-            AuthMethods().signInWithGoogle(context);
-          },
-          child: Icon(Icons.email, color: Colors.white, size: 30),
-          ),
         Icon(Icons.facebook, color: Colors.white, size: 30),
         SizedBox(width: 20),
+        // GestureDetector(
+        //   onTap: (){
+        //     AuthMethods().signInWithGoogle(context);
+        //   },
+        //   child: 
+        Icon(Icons.email, color: Colors.white, size: 30),
+    // ),
+          SizedBox(width: 20,),
+        Icon(Icons.apple, color: Colors.white, size: 30),
         
       ],
     );

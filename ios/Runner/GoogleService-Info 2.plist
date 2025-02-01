@@ -2,18 +2,22 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>CLIENT_ID</key>
+	<string>764593377955-es1uv4v31f5o76dut63srse1eu5vkqtt.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.764593377955-es1uv4v31f5o76dut63srse1eu5vkqtt</string>
 	<key>API_KEY</key>
-	<string>AIzaSyA9xlLZvGgrFF0lppckzVoTx_AbiwqzhDo</string>
+	<string>AIzaSyAL8Xo87mjMGZgt6wLK5CXO9YUkgDBmDUw</string>
 	<key>GCM_SENDER_ID</key>
-	<string>569294604025</string>
+	<string>764593377955</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>com.example.gateSentinal</string>
 	<key>PROJECT_ID</key>
-	<string>gate-sentinal</string>
+	<string>gatesentinal</string>
 	<key>STORAGE_BUCKET</key>
-	<string>gate-sentinal.firebasestorage.app</string>
+	<string>gatesentinal.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -25,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:569294604025:ios:307f14206523f067314428</string>
+	<string>1:764593377955:ios:4dbe4782ea00451aeca516</string>
 </dict>
 </plist>

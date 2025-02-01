@@ -1,49 +1,66 @@
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:gate_sentinal/Pages/home.dart';
 import 'package:gate_sentinal/Services/database.dart';
-import 'package:google_sign_in/google_sign_in.dart';
 
+class AuthMethods {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final GoogleSignIn _googleSignIn = GoogleSignIn();
 
-class AuthMethods{
-  final FirebaseAuth auth = FirebaseAuth.instance;
-
-  getCurrentUser() async{
-    return await auth.currentUser;
+  Future<User?> getCurrentUser() async {
+    return _auth.currentUser;
   }
 
-  signInWithGoogle(BuildContext context) async{
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+  Future<void> signInWithGoogle(BuildContext context) async {
+    try {
+      final GoogleSignInAccount? googleSignInAccount = await _googleSignIn.signIn();
+      if (googleSignInAccount == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Google Sign-In was cancelled.")),
+        );
+        return;
+      }
 
-    final GoogleSignIn googleSignIn = GoogleSignIn();
-    final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
+      final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount.authentication;
+      final AuthCredential credential = GoogleAuthProvider.credential(
+        idToken: googleSignInAuthentication.idToken,
+        accessToken: googleSignInAuthentication.accessToken,
+      );
 
-    final GoogleSignInAuthentication? googleSignInAuthentication = await googleSignInAccount?.authentication;
+      UserCredential result = await _auth.signInWithCredential(credential);
+      User? userDetails = result.user;
 
-    final AuthCredential credential = GoogleAuthProvider.credential(
-      idToken: googleSignInAuthentication?.idToken,
-        accessToken: googleSignInAuthentication?.accessToken
-    );
+      if (userDetails != null) {
+        Map<String, dynamic> userInfoMap = {
+          "email": userDetails.email,
+          "name": userDetails.displayName,
+          "imgUrl": userDetails.photoURL,
+          "id": userDetails.uid,
+        };
 
-    UserCredential result = await firebaseAuth.signInWithCredential(credential);
+        // Store user data in Firestore
+        await DatabaseMethods().addUser(userDetails.uid, userInfoMap);
 
-    User? userDetails = result.user;
-
-    if(result!=null){
-      Map<String, dynamic> userInfoMap = {
-        "email": userDetails!.email,
-        "name": userDetails.displayName,
-        "imhUrl": userDetails.photoURL,
-        "id":userDetails.uid,
-
-      };
-      await DatabaseMethods().addUser(userDetails.uid, userInfoMap);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context)=> HomePage(),
-          ));
+        // Navigate to Home Page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      }
+    } catch (e) {
+      print("Error signing in with Google: $e");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Failed to sign in: $e")),
+      );
     }
+  }
+
+  Future<void> signOutGoogle(BuildContext context) async {
+    await _googleSignIn.signOut();
+    await _auth.signOut();
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Signed out successfully!")),
+    );
   }
 }

@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gate_sentinal/Main_pages/forgetpassword.dart';
+import 'package:gate_sentinal/Main_pages/forgotpassword.dart';
 import 'package:gate_sentinal/Main_pages/signup_page.dart';
 import 'package:gate_sentinal/Pages/home.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -120,13 +120,13 @@ class _LoginPageState extends State<LoginPage> {
                         activeColor: Colors.white,
                         checkColor: Colors.black,
                       ),
-                      const Text('Remember me', style: TextStyle(color: Colors.white70)),
+                      const Text('Remember me', style: TextStyle(color: Colors.white)),
                     ],
                   ),
                   GestureDetector(
                     onTap: () => Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const Forgetpassword()),
+                      MaterialPageRoute(builder: (context) => const ForgotPassword()),
                     ),
                     child: const Text(
                       'Forgot password?',
@@ -155,12 +155,12 @@ class _LoginPageState extends State<LoginPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Expanded(child: Divider(thickness: 0.7, color: Colors.grey.withOpacity(0.5))),
+                  Expanded(child: Divider(thickness: 0.7, color: Colors.grey)),
                   const Padding(
                     padding: EdgeInsets.symmetric(horizontal: 10),
                     child: Text('Sign in with', style: TextStyle(color: Colors.white70)),
                   ),
-                  Expanded(child: Divider(thickness: 0.7, color: Colors.grey.withOpacity(0.5))),
+                  Expanded(child: Divider(thickness: 0.7, color: Colors.grey)),
                 ],
               ),
               const SizedBox(height: 25.0),
@@ -198,7 +198,7 @@ class _LoginPageState extends State<LoginPage> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        hintStyle: const TextStyle(color: Colors.white70),
+        hintStyle: const TextStyle(color: Colors.white),
         border: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.white),
           borderRadius: BorderRadius.circular(10),

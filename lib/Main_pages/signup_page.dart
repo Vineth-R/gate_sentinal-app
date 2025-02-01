@@ -156,8 +156,13 @@ class _SignupPageState extends State<SignupPage> {
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: registration,
-                  child: const Text('Sign Up'),
+                  onPressed: registration, style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: Colors.black,
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+                  ),
+                  child: const Text('Sign Up')
+                  ,
                 ),
               ),
               const SizedBox(height: 25.0),
@@ -205,7 +210,7 @@ class _SignupPageState extends State<SignupPage> {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: const TextStyle(color: Colors.white),
+        labelStyle: const TextStyle(color: Colors.white30),
         hintStyle: const TextStyle(color: Colors.white70),
         border: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.white),
@@ -216,7 +221,7 @@ class _SignupPageState extends State<SignupPage> {
           borderRadius: BorderRadius.circular(10),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.blueAccent),
+          borderSide: const BorderSide(color: Colors.white),
           borderRadius: BorderRadius.circular(10),
         ),
       ),

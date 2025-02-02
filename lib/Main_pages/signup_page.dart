@@ -248,7 +248,13 @@ class _SignupPageState extends State<SignupPage> {
           child: Icon(Icons.email, color: Colors.white, size: 30),
     ),
         const SizedBox(width: 20),
-        const Icon(Icons.apple, color: Colors.white, size: 30),
+        GestureDetector(
+          onTap: (){
+            AuthMethods().signInWithApple();
+          },
+          child: Icon(Icons.apple, color: Colors.white, size: 30),
+    ),
+        
       ],
     );
   }

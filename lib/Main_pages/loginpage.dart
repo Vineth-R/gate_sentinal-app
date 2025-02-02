@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:gate_sentinal/Main_pages/forgotpassword.dart';
 import 'package:gate_sentinal/Main_pages/signup_page.dart';
 import 'package:gate_sentinal/Pages/home.dart';
-import 'package:gate_sentinal/Services/auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {

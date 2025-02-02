@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "764593377955-o8f7sck39177lo9le52ggbdeb7nnq9g8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gate_sentinal",
+            "certificate_hash": "3ebc26cad9d43ac1b8b65032684a0fe1711824bf"
+          }
+        },
+        {
           "client_id": "764593377955-2d922r131jq5bchk8soitvqhlo4masjj.apps.googleusercontent.com",
           "client_type": 3
         }

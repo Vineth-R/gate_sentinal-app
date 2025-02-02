@@ -239,7 +239,13 @@ class _SignupPageState extends State<SignupPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        const Icon(Icons.facebook, color: Colors.white, size: 30),
+        GestureDetector(
+          onTap: (){
+            AuthMethods().signInWithFacebook(context);
+          },
+          child: Icon(Icons.facebook, color: Colors.white, size: 30),
+    ),
+        
         const SizedBox(width: 20),
         GestureDetector(
           onTap: (){

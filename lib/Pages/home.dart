@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gate_sentinal/Main_pages/profilepage.dart';
 import 'package:gate_sentinal/Pages/camerafeed.dart';
 import 'package:gate_sentinal/Pages/fingerprintlogs.dart';
 import 'package:gate_sentinal/Pages/fingerprintsettings.dart';
@@ -23,17 +24,20 @@ class HomePage extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    const SizedBox(width: 10),
+                    IconButton(
+                      icon: const Icon(Icons.person, color: Colors.black, size: 28),
+                      onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=> Profilepage())),
+                    ),
+                    const SizedBox(width: 50),
                     SizedBox(
                       width: 60,
                       height: 60,
-                      child: Image.asset(
-                        'assets/image1.jpeg',
-                        fit: BoxFit.contain,
-                      ),
+                      child: Image.asset('assets/image1.jpeg', fit: BoxFit.contain),
                     ),
-                    const SizedBox(width: 8), // Spacing between icon and text
+                    const SizedBox(width: 8),
                     Text(
                       "Gate Sentinel",
                       style: GoogleFonts.acme(

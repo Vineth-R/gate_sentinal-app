@@ -222,7 +222,7 @@ class _LoginPageState extends State<LoginPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children:  [
-        Icon(Icons.facebook, color: Colors.white, size: 30),
+        // Icon(Icons.facebook, color: Colors.white, size: 30),
         SizedBox(width: 20),
         // GestureDetector(
         //   onTap: (){
@@ -232,7 +232,7 @@ class _LoginPageState extends State<LoginPage> {
         Icon(Icons.email, color: Colors.white, size: 30),
     // ),
           SizedBox(width: 20,),
-        Icon(Icons.apple, color: Colors.white, size: 30),
+        // Icon(Icons.apple, color: Colors.white, size: 30),
         
       ],
     );

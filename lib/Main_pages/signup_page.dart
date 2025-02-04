@@ -254,18 +254,18 @@ class _SignupPageState extends State<SignupPage> {
           child: Icon(Icons.email, color: Colors.white, size: 30),
     ),
         const SizedBox(width: 20),
-        GestureDetector(
-          onTap: (){
-            ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Apple', style: TextStyle(fontSize: 20.0)),
-            backgroundColor: Colors.green,
-          ),
-        );
-            AuthMethods().signInWithApple();
-          },
-          child: Icon(Icons.apple, color: Colors.white, size: 30),
-    ),
+    //     GestureDetector(
+    //       onTap: (){
+    //         ScaffoldMessenger.of(context).showSnackBar(
+    //       const SnackBar(
+    //         content: Text('Apple', style: TextStyle(fontSize: 20.0)),
+    //         backgroundColor: Colors.green,
+    //       ),
+    //     );
+    //         AuthMethods().signInWithApple();
+    //       },
+    //       child: Icon(Icons.apple, color: Colors.white, size: 30),
+    // ),
         
       ],
     );

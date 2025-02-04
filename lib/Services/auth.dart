@@ -5,7 +5,7 @@ import 'package:gate_sentinal/Pages/home.dart';
 import 'package:gate_sentinal/Services/database.dart';
 import 'package:the_apple_sign_in/the_apple_sign_in.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
+// import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 
 class AuthMethods {
   final FirebaseAuth auth = FirebaseAuth.instance;
@@ -85,24 +85,25 @@ class AuthMethods {
       }
   }
 
-  // Facebook Sign In
-  Future<UserCredential> signInWithFacebook(BuildContext context) async {
-    try {
-      final LoginResult loginResult = await FacebookAuth.instance.login();
-      if (loginResult.status == LoginStatus.success) {
-        final OAuthCredential facebookAuthCredential =
-            FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
-        return await FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
-      } else {
-        throw Exception('Facebook login failed: ${loginResult.message}');
-      }
-    } catch (e) {
-      // Handle the error by showing an alert or error message
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-        content: Text("Error logging in with Facebook: $e"),
-        backgroundColor: Colors.red,
-      ));
-      rethrow; // Rethrow the error to propagate it
-    }
-  }
+  // Future<UserCredential> signInWithFacebook(BuildContext context) async {
+  //   try {
+  //     final LoginResult loginResult = await FacebookAuth.instance.login();
+
+  //     if (loginResult.status == LoginStatus.success) {
+  //       final OAuthCredential facebookAuthCredential =
+  //           FacebookAuthProvider.credential(loginResult.accessToken!.tokenString);
+  //       return await auth.signInWithCredential(facebookAuthCredential);
+  //     } else {
+  //       throw Exception('Facebook login failed: ${loginResult.message}');
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text("Error logging in with Facebook: $e"),
+  //         backgroundColor: Colors.red,
+  //       ),
+  //     );
+  //     rethrow;
+  //   }
+  // }
 }

@@ -2,6 +2,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gate_sentinal/Main_pages/forgotpassword.dart';
 import 'package:gate_sentinal/Main_pages/signup_page.dart';
+import 'package:gate_sentinal/Main_pages/welcomepage.dart';
 import 'package:gate_sentinal/Pages/home.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -77,7 +78,8 @@ class _LoginPageState extends State<LoginPage> {
                     const SizedBox(width: 10),
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=>Welcomepage())),
                     ),
                     const SizedBox(width: 50),
                     SizedBox(

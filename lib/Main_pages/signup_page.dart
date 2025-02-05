@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:gate_sentinal/Main_pages/loginpage.dart';
@@ -13,7 +14,6 @@ class SignupPage extends StatefulWidget {
 }
 
 class _SignupPageState extends State<SignupPage> {
-  // Controllers for form fields
   final TextEditingController fullnamecontroller = TextEditingController();
   final TextEditingController emailcontroller = TextEditingController();
   final TextEditingController passwordcontroller = TextEditingController();
@@ -29,26 +29,37 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 
-  // Firebase Registration Function
   Future<void> registration() async {
     if (_formSignupKey.currentState!.validate() && agreePersonalData) {
       try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        UserCredential userCredential = await FirebaseAuth.instance.createUserWithEmailAndPassword(
           email: emailcontroller.text.trim(),
           password: passwordcontroller.text.trim(),
         );
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Registered successfully', style: TextStyle(fontSize: 20.0)),
-            backgroundColor: Colors.green,
-          ),
-        );
+        User? user = userCredential.user;
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
+        if (user != null) {
+          await user.updateDisplayName(fullnamecontroller.text.trim());
+
+          await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
+            "name": fullnamecontroller.text.trim(),
+            "email": emailcontroller.text.trim(),
+            "createdAt": Timestamp.now(),
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Registered successfully', style: TextStyle(fontSize: 20.0)),
+              backgroundColor: Colors.green,
+            ),
+          );
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+        }
       } on FirebaseAuthException catch (e) {
         String message = 'Registration failed';
         if (e.code == 'weak-password') {
@@ -75,8 +86,6 @@ class _SignupPageState extends State<SignupPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-
-      // Custom AppBar
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(175),
         child: ClipPath(
@@ -91,16 +100,14 @@ class _SignupPageState extends State<SignupPage> {
                     const SizedBox(width: 10),
                     IconButton(
                       icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
-                      onPressed: () => Navigator.pop(context),
+                      onPressed: () => Navigator.push(context,
+                      MaterialPageRoute(builder: (context)=>LoginPage())),
                     ),
                     const SizedBox(width: 50),
                     SizedBox(
                       width: 60,
                       height: 60,
-                      child: Image.asset(
-                        'assets/image1.jpeg',
-                        fit: BoxFit.contain,
-                      ),
+                      child: Image.asset('assets/image1.jpeg', fit: BoxFit.contain),
                     ),
                     const SizedBox(width: 8),
                     Text(
@@ -118,7 +125,6 @@ class _SignupPageState extends State<SignupPage> {
           ),
         ),
       ),
-
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Form(
@@ -128,14 +134,10 @@ class _SignupPageState extends State<SignupPage> {
             children: [
               _buildTextField(fullnamecontroller, 'Full Name', 'Enter Full Name'),
               const SizedBox(height: 25.0),
-
               _buildTextField(emailcontroller, 'Email', 'Enter Email'),
               const SizedBox(height: 25.0),
-
               _buildTextField(passwordcontroller, 'Password', 'Enter Password', isPassword: true),
               const SizedBox(height: 20.0),
-
-              // Agreement Checkbox
               Row(
                 children: [
                   Checkbox(
@@ -153,38 +155,28 @@ class _SignupPageState extends State<SignupPage> {
                 ],
               ),
               const SizedBox(height: 25.0),
-
-              // Sign Up Button
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
-                  onPressed: registration, style: ElevatedButton.styleFrom(
+                  onPressed: registration,
+                  style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
-                  child: const Text('Sign Up',
-                  style: TextStyle(
-                    fontSize: 18.0,
-                  ),)
-                  ,
+                  child: const Text('Sign Up', style: TextStyle(fontSize: 18.0)),
                 ),
               ),
               const SizedBox(height: 25.0),
-
               buildSocialMediaIcons(),
               const SizedBox(height: 25.0),
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Text('Already have an account?', style: TextStyle(color: Colors.white)),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginPage()),
-                      );
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => const LoginPage()));
                     },
                     child: const Text(' Sign in', style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold)),
                   ),
@@ -197,26 +189,20 @@ class _SignupPageState extends State<SignupPage> {
     );
   }
 
-  // Text field builder with validation
   Widget _buildTextField(TextEditingController controller, String label, String hint, {bool isPassword = false}) {
     return TextFormField(
       controller: controller,
       obscureText: isPassword,
       obscuringCharacter: '*',
       validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter $label';
-        }
-        if (isPassword && value.length < 6) {
-          return 'Password must be at least 6 characters';
-        }
+        if (value == null || value.isEmpty) return 'Please enter $label';
+        if (isPassword && value.length < 6) return 'Password must be at least 6 characters';
         return null;
       },
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        labelStyle: const TextStyle(color: Colors.white30),
-        hintStyle: const TextStyle(color: Colors.white70),
+        hintStyle: const TextStyle(color: Colors.white),
         border: OutlineInputBorder(
           borderSide: const BorderSide(color: Colors.white),
           borderRadius: BorderRadius.circular(10),
@@ -225,54 +211,26 @@ class _SignupPageState extends State<SignupPage> {
           borderSide: const BorderSide(color: Colors.white),
           borderRadius: BorderRadius.circular(10),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderSide: const BorderSide(color: Colors.white),
-          borderRadius: BorderRadius.circular(10),
-        ),
       ),
       style: const TextStyle(color: Colors.white),
     );
   }
 
-  // Social media icons
   Widget buildSocialMediaIcons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-    //     GestureDetector(
-    //       onTap: (){
-    //         AuthMethods().signInWithFacebook(context);
-    //       },
-    //       child: Icon(Icons.facebook, color: Colors.white, size: 30),
-    // ),
-        
         const SizedBox(width: 20),
         GestureDetector(
-          onTap: (){
-            AuthMethods().signInWithGoogle(context);
-          },
-          child: Icon(Icons.email, color: Colors.white, size: 30),
-    ),
+          onTap: () => AuthMethods().signInWithGoogle(context),
+          child: const Icon(Icons.email, color: Colors.white, size: 30),
+        ),
         const SizedBox(width: 20),
-    //     GestureDetector(
-    //       onTap: (){
-    //         ScaffoldMessenger.of(context).showSnackBar(
-    //       const SnackBar(
-    //         content: Text('Apple', style: TextStyle(fontSize: 20.0)),
-    //         backgroundColor: Colors.green,
-    //       ),
-    //     );
-    //         AuthMethods().signInWithApple();
-    //       },
-    //       child: Icon(Icons.apple, color: Colors.white, size: 30),
-    // ),
-        
       ],
     );
   }
 }
 
-// Custom AppBar Shape
 class CustomAppBarClipper extends CustomClipper<Path> {
   @override
   Path getClip(Size size) {
@@ -288,4 +246,3 @@ class CustomAppBarClipper extends CustomClipper<Path> {
   @override
   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
 }
-

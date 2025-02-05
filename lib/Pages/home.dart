@@ -6,11 +6,36 @@ import 'package:gate_sentinal/Pages/fingerprintsettings.dart';
 import 'package:gate_sentinal/Pages/videorecordings.dart';
 import 'package:gate_sentinal/Pages/displaynotices.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
   @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  User? user;
+
+ @override
+void initState() {
+  super.initState(); // Ensure this is called first
+  _getCurrentUser();
+}
+
+
+ void _getCurrentUser() {
+  final currentUser = FirebaseAuth.instance.currentUser;
+  if (currentUser != null) {
+    setState(() {
+      user = currentUser;
+    });
+  }
+}
+
+
+
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black, // Background Color
@@ -25,13 +50,9 @@ class HomePage extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    const SizedBox(width: 10),
-                    IconButton(
-                      icon: const Icon(Icons.person, color: Colors.black, size: 28),
-                      onPressed: () => Navigator.push(context,
-                      MaterialPageRoute(builder: (context)=> Profilepage())),
-                    ),
-                    const SizedBox(width: 50),
+                    // const SizedBox(width: 20),
+                    
+                    const SizedBox(width: 105),
                     SizedBox(
                       width: 60,
                       height: 60,
@@ -46,7 +67,38 @@ class HomePage extends StatelessWidget {
                         fontSize: 24,
                       ),
                     ),
-                  ],
+                    Column(children: [
+                    const SizedBox(width:100),
+                    Container(
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: Colors.black, // Change this to your desired border color
+                          width: 3, // Adjust border width
+                        ),
+                      ),
+                    child: GestureDetector(
+                      onTap: (){
+                        Navigator.push(context, 
+                        MaterialPageRoute(builder: 
+                        (context)=> Profilepage())
+                        );
+                      },
+
+                    child: CircleAvatar(
+                     backgroundImage: user?.photoURL != null
+                        ? NetworkImage(user!.photoURL!) as ImageProvider<Object>
+                        :null,
+                        backgroundColor: Colors.grey,
+                      radius: 20,
+                        child:user?.photoURL == null 
+                        ?Icon(Icons.person, size: 30, color: Colors.black,)
+                        :null,
+                    ),
+                    ),),
+                    SizedBox(height: 100)]
+                    
+                    )]
                 ),
               ],
             ),

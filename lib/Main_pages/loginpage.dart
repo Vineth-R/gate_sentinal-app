@@ -45,11 +45,16 @@ class _LoginPageState extends State<LoginPage> {
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       } on FirebaseAuthException catch (e) {
+        print("FirebaseAuthException Code: ${e.code}");
         String errorMessage = 'Login failed';
         if (e.code == 'user-not-found') {
           errorMessage = 'No user found for that email.';
         } else if (e.code == 'wrong-password') {
           errorMessage = 'Wrong password.';
+        } else if (e.code == "invalid-credential") {
+          errorMessage = "The provided credential is invalid.";
+        } else {
+          errorMessage = "An unknown error occurred: ${e.message}";
         }
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -65,11 +70,11 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  Color(0xB3B3B3B3).withAlpha(100),
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(175),
-        child: ClipPath(
-          clipper: CustomAppBarClipper(),
+        preferredSize: const Size.fromHeight(150),
+        // child: ClipPath(
+        //   clipper: CustomAppBarClipper(),
           child: Container(
             color: Colors.white,
             child: Column(
@@ -103,10 +108,20 @@ class _LoginPageState extends State<LoginPage> {
               ],
             ),
           ),
-        ),
+        // ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
+      body: Expanded(
+        // padding: const EdgeInsets.all(20.0),
+        flex: 7,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
+          decoration: BoxDecoration(
+            color: Color(0xFF333333).withAlpha(235), // Much darker shade with higher opacity
+
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(40)
+            )
+          ),
         child: Form(
           key: _formSignInKey,
           child: Column(
@@ -201,7 +216,7 @@ class _LoginPageState extends State<LoginPage> {
           ),
         ),
       ),
-    );
+    ));
   }
 
   Widget buildTextField(TextEditingController controller, String label, String hint, bool isPassword) {
@@ -255,18 +270,18 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class CustomAppBarClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height);
-    path.lineTo(size.width / 2, size.height - 80);
-    path.lineTo(size.width, size.height);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
+// class CustomAppBarClipper extends CustomClipper<Path> {
+//   @override
+//   Path getClip(Size size) {
+//     Path path = Path();
+//     path.lineTo(0, size.height);
+//     // path.lineTo(size.width / 2, size.height - 80);
+//     path.lineTo(size.width, size.height);
+//     path.lineTo(size.width, 0);
+//     path.close();
+//     return path;
+//   }
 
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
+//   @override
+//   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+// }

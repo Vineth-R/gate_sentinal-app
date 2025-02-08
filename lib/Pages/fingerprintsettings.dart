@@ -7,11 +7,11 @@ class Fingerprintsettings extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  Color(0xB3B3B3B3).withAlpha(100), // Background Color
+      backgroundColor:  Colors.white, // Background Color
       appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(175),
-        child: ClipPath(
-          clipper: CustomAppBarClipper(),
+        preferredSize: const Size.fromHeight(150),
+        // child: ClipPath(
+        //   clipper: CustomAppBarClipper(),
           child: Container(
             color: Colors.white,
             child: Column(
@@ -57,15 +57,27 @@ class Fingerprintsettings extends StatelessWidget {
               ],
             ),
           ),
-        ),
+        // ),
       ),
-      body: const Center(
+      body: Expanded(
+        flex: 7,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
+          decoration: BoxDecoration(
+            color: Color(0xFF333333).withAlpha(235), 
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(40)
+            )
+          ),
+        child: const Center(
         child: Text(
           'Video Recordings page!',
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
       ),
-    );
+      )
+      )
+      );
   }
 }
 

@@ -8,10 +8,28 @@ class Resetpassword extends StatefulWidget {
   @override
   _ResetpasswordState createState() => _ResetpasswordState();
 }
-
+ User? user;
 class _ResetpasswordState extends State<Resetpassword> {
   String email = "";
   final TextEditingController emailController = TextEditingController();
+
+
+  void initState(){
+    super.initState();
+    getCurrentUser();
+  }
+
+  void getCurrentUser() async{
+    final currentuser = FirebaseAuth.instance.currentUser;
+    if(currentuser != null){
+      setState(() {
+        user = currentuser;
+        emailController.text = user!.email??"";
+      });
+    }
+  }
+
+
   final _formKey = GlobalKey<FormState>();
 
   Future<void> resetPassword() async {
@@ -38,11 +56,11 @@ class _ResetpasswordState extends State<Resetpassword> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor:  Color(0xB3B3B3B3).withAlpha(100), // Background Color
+      backgroundColor:  Colors.white, // Background Color
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(175),
-        child: ClipPath(
-          clipper: CustomAppBarClipper(),
+        // child: ClipPath(
+        //   clipper: CustomAppBarClipper(),
           child: Container(
             color: Colors.white,
             child: Column(
@@ -75,10 +93,19 @@ class _ResetpasswordState extends State<Resetpassword> {
               ],
             ),
           ),
-        ),
+        // ),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(5.0),
+      body: Expanded(
+        // padding: const EdgeInsets.all(5.0),
+        flex: 7,
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
+          decoration: BoxDecoration(
+            color: Color(0xFF333333).withAlpha(235), 
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(40)
+            )
+          ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -156,23 +183,24 @@ class _ResetpasswordState extends State<Resetpassword> {
           ],
         ),
       ),
-    );
+     )
+      );
   }
 }
 
-// Custom AppBar Shape
-class CustomAppBarClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height);
-    path.lineTo(size.width / 2, size.height - 80);
-    path.lineTo(size.width, size.height);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
+// // Custom AppBar Shape
+// class CustomAppBarClipper extends CustomClipper<Path> {
+//   @override
+//   Path getClip(Size size) {
+//     Path path = Path();
+//     path.lineTo(0, size.height);
+//     path.lineTo(size.width / 2, size.height - 80);
+//     path.lineTo(size.width, size.height);
+//     path.lineTo(size.width, 0);
+//     path.close();
+//     return path;
+//   }
 
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
+//   @override
+//   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+// }

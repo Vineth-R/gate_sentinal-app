@@ -125,8 +125,6 @@ class BlackTriangleClipper extends CustomClipper<Path> {
     path.moveTo(size.width, screenHeight*0.3);
     path.lineTo(size.width / 2, size.height * 0.65);
     path.lineTo(size.width,screenHeight);
-    // path.lineTo(size.width, size.height);
-    // path.lineTo(0, size.height);
     path.close();
     return path;
   }

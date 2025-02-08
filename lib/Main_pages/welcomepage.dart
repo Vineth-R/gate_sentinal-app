@@ -11,7 +11,7 @@ class Welcomepage extends StatelessWidget {
     double screenWidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
-      backgroundColor: Colors.black, 
+      backgroundColor:  Color(0xB3B3B3B3).withAlpha(100), 
       body: Stack(
         children: [
           // White triangle in the body

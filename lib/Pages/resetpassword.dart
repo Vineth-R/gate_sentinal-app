@@ -1,16 +1,15 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gate_sentinal/Main_pages/signup_page.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class ForgotPassword extends StatefulWidget {
-  const ForgotPassword({super.key});
+class Resetpassword extends StatefulWidget {
+  const Resetpassword({super.key});
 
   @override
-  _ForgotPasswordState createState() => _ForgotPasswordState();
+  _ResetpasswordState createState() => _ResetpasswordState();
 }
 
-class _ForgotPasswordState extends State<ForgotPassword> {
+class _ResetpasswordState extends State<Resetpassword> {
   String email = "";
   final TextEditingController emailController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
@@ -150,27 +149,6 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                   ),
                     ),
                     ),
-                  
-                  const SizedBox(height: 25.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Text("Don't have an account?", style: TextStyle(color: Colors.white)),
-                      const SizedBox(width: 5.0),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => const SignupPage()),
-                          );
-                        },
-                        child: const Text(
-                          "Create",
-                          style: TextStyle(color: Colors.blueAccent, fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),

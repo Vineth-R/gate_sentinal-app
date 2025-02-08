@@ -38,7 +38,7 @@ void initState() {
 
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Background Color
+      backgroundColor: Color(0xB3B3B3B3).withAlpha(100), // Background Color
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(175),
         child: ClipPath(

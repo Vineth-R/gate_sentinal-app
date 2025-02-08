@@ -20,6 +20,7 @@ class _SignupPageState extends State<SignupPage> {
 
   final _formSignupKey = GlobalKey<FormState>();
   bool agreePersonalData = false;
+  bool _showpassword = false;
 
   @override
   void dispose() {
@@ -85,7 +86,7 @@ class _SignupPageState extends State<SignupPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor:  Color(0xB3B3B3B3).withAlpha(100),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(175),
         child: ClipPath(
@@ -192,7 +193,7 @@ class _SignupPageState extends State<SignupPage> {
   Widget _buildTextField(TextEditingController controller, String label, String hint, {bool isPassword = false}) {
     return TextFormField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword? !_showpassword: false,
       obscuringCharacter: '*',
       validator: (value) {
         if (value == null || value.isEmpty) return 'Please enter $label';
@@ -201,6 +202,7 @@ class _SignupPageState extends State<SignupPage> {
       },
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.white),
         border: OutlineInputBorder(
@@ -211,6 +213,16 @@ class _SignupPageState extends State<SignupPage> {
           borderSide: const BorderSide(color: Colors.white),
           borderRadius: BorderRadius.circular(10),
         ),
+        suffixIcon: isPassword
+        ? IconButton(onPressed: (){
+          setState(() {
+            _showpassword = !_showpassword;
+          });
+        }, 
+        icon: Icon(
+                _showpassword ? Icons.visibility : Icons.visibility_off,
+                color: Colors.white70,
+              )):null,
       ),
       style: const TextStyle(color: Colors.white),
     );

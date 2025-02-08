@@ -4,6 +4,7 @@ import 'package:gate_sentinal/Main_pages/forgotpassword.dart';
 import 'package:gate_sentinal/Main_pages/signup_page.dart';
 import 'package:gate_sentinal/Main_pages/welcomepage.dart';
 import 'package:gate_sentinal/Pages/home.dart';
+import 'package:gate_sentinal/Services/auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
@@ -18,6 +19,7 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController passwordController = TextEditingController();
   final _formSignInKey = GlobalKey<FormState>();
   bool rememberPassword = false;
+  bool _showpassword = false;
 
   @override
   void dispose() {
@@ -63,7 +65,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor:  Color(0xB3B3B3B3).withAlpha(100),
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(175),
         child: ClipPath(
@@ -126,8 +128,12 @@ class _LoginPageState extends State<LoginPage> {
                             rememberPassword = value ?? false;
                           });
                         },
-                        activeColor: Colors.white,
-                        checkColor: Colors.black,
+                        activeColor: Colors.black,
+                        checkColor: Colors.white,
+                        side: const BorderSide(
+                          color: Colors.white,
+                          width: 2,
+                        ),
                       ),
                       const Text('Remember me', style: TextStyle(color: Colors.white)),
                     ],
@@ -201,11 +207,12 @@ class _LoginPageState extends State<LoginPage> {
   Widget buildTextField(TextEditingController controller, String label, String hint, bool isPassword) {
     return TextFormField(
       controller: controller,
-      obscureText: isPassword,
+      obscureText: isPassword ? !_showpassword : false,
       style: const TextStyle(color: Colors.white),
       validator: (value) => value == null || value.isEmpty ? 'Please enter $label' : null,
       decoration: InputDecoration(
         labelText: label,
+        labelStyle: const TextStyle(color: Colors.white70),
         hintText: hint,
         hintStyle: const TextStyle(color: Colors.white),
         border: OutlineInputBorder(
@@ -216,26 +223,33 @@ class _LoginPageState extends State<LoginPage> {
           borderSide: const BorderSide(color: Colors.white),
           borderRadius: BorderRadius.circular(10),
         ),
-      ),
+        suffixIcon: isPassword // Show eye icon only for password fields
+          ? IconButton(
+              icon: Icon(
+                _showpassword ? Icons.visibility : Icons.visibility_off,
+                color: Colors.white70,
+              ),
+              onPressed: () {
+                setState(() {
+                  _showpassword = !_showpassword;
+                });
+              },
+            )
+          : null,
+    ),
     );
   }
 
-  Widget buildSocialMediaIcons() {
+ Widget buildSocialMediaIcons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children:  [
-        // Icon(Icons.facebook, color: Colors.white, size: 30),
-        SizedBox(width: 20),
-        // GestureDetector(
-        //   onTap: (){
-        //     AuthMethods().signInWithGoogle(context);
-        //   },
-        //   child: 
-        Icon(Icons.email, color: Colors.white, size: 30),
-    // ),
-          SizedBox(width: 20,),
-        // Icon(Icons.apple, color: Colors.white, size: 30),
-        
+      children: [
+        const SizedBox(width: 20),
+        GestureDetector(
+          onTap: () => AuthMethods().signInWithGoogle(context),
+          child: const Icon(Icons.email, color: Colors.white, size: 30),
+        ),
+        const SizedBox(width: 20),
       ],
     );
   }

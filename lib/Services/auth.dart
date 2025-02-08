@@ -15,15 +15,22 @@ class AuthMethods {
   }
 
   // Google Sign In
-  signInWithGoogle(BuildContext context) async {
-    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-    final GoogleSignIn googleSignIn = GoogleSignIn();
+  Future<void> signInWithGoogle(BuildContext context) async {
+    try{
+      final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+      final GoogleSignIn googleSignIn = GoogleSignIn();
+
+      await googleSignIn.signOut();
 
     final GoogleSignInAccount? googleSignInAccount =
         await googleSignIn.signIn();
 
+    if(googleSignInAccount == null){
+      return;
+    }
+
     final GoogleSignInAuthentication? googleSignInAuthentication =
-        await googleSignInAccount?.authentication;
+        await googleSignInAccount.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.credential(
         idToken: googleSignInAuthentication?.idToken,
@@ -45,9 +52,26 @@ class AuthMethods {
           .then((value) {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) => HomePage()));
+
       });
     }
+  }catch(e){
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: 
+      Text("Google Sign-In Failed: ${e.toString()}"),
+      backgroundColor: Colors.red
+    ));
   }
+  }
+  Future<void> signOut() async {
+    try {
+      await auth.signOut(); // Firebase Sign Out
+      await GoogleSignIn().signOut(); // Google Sign Out
+    } catch (e) {
+      debugPrint("Error signing out: $e");
+    }
+  }
+}
 
   // // Apple Sign In
   // Future<User> signInWithApple({List<Scope> scopes = const []}) async {
@@ -105,4 +129,4 @@ class AuthMethods {
   //     rethrow;
   //   }
   // }
-}
+

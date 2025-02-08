@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:gate_sentinal/Main_pages/loginpage.dart';
+import 'package:gate_sentinal/Pages/editprofile.dart';
+import 'package:gate_sentinal/Pages/resetpassword.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 
 class Profilepage extends StatefulWidget { 
@@ -52,23 +55,30 @@ Future<void> _fetchNameFromFirestore(String userId) async{
         }
 }
 
-void signOut(BuildContext context) async{
-  try{
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushReplacement(context, 
-    MaterialPageRoute(builder: (context)=> LoginPage()));
-      }catch(e){
-        ScaffoldMessenger.of(context).showSnackBar(
+void signOut(BuildContext context) async {
+  try {
+    await FirebaseAuth.instance.signOut(); // Firebase sign-out
+    await GoogleSignIn().signOut(); // Google sign-out
+
+    // Navigate to LoginPage and remove all previous routes
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => LoginPage()),
+      (route) => false, // This removes all previous pages from the stack
+    );
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Error signing out: $e"),
         backgroundColor: Colors.red,
       ),
     );
-      }
+  }
 }
+
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black, // Background Color
+      backgroundColor:  Color(0xB3B3B3B3).withAlpha(100), // Background Color
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(175),
         child: ClipPath(
@@ -124,16 +134,32 @@ void signOut(BuildContext context) async{
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
-          children:[ CircleAvatar(
+          children:[ Stack(
+            children: [
+              CircleAvatar(
                      backgroundImage: user?.photoURL != null
                         ? NetworkImage(user!.photoURL!) as ImageProvider<Object>
-                        // : const AssetImage('assets/default_avatar.png'),
                         :null,
                         backgroundColor: Colors.grey,
                       radius: 70,
                         child:user?.photoURL == null 
                         ?Icon(Icons.person, size: 50, color: Colors.black,)
                         :null,
+                    ),
+                    Positioned(
+                      bottom: 0,
+                      right: 4,
+                      child: GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=> EditProfile()));
+                        },
+                        child: CircleAvatar(
+                          backgroundColor: Colors.green.shade100,
+                          radius: 18,
+                          child: Icon(Icons.edit, color: Colors.black, size: 20),)
+                      )
+                      )
+                    ]
                     ),
           ]
           ),
@@ -150,7 +176,7 @@ void signOut(BuildContext context) async{
               ),
             ],
           ),
-          // const SizedBox(height: 10,),
+          
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -163,15 +189,39 @@ void signOut(BuildContext context) async{
 
             ],
           ),
+          const SizedBox(height: 25.0,),
+
+          ElevatedButton(onPressed: (){
+            Navigator.push(context, 
+            MaterialPageRoute(builder: (context)=>Resetpassword())
+            );
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black,
+            minimumSize: const Size(350, 40),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
+          ), child: const Padding(
+            padding: EdgeInsets.symmetric(vertical: 12),
+            child: Text(
+              "Reset Password",
+              style: TextStyle(
+                fontSize: 18,
+              ),
+            ),
+          )),
+
 
           const SizedBox(height: 25.0),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
+          
+            
+              
+                ElevatedButton(
                   onPressed: ()=> signOut(context),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.black,
+                    minimumSize: const Size(350, 40),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
                   ),
                   child: const Padding(
@@ -179,11 +229,8 @@ void signOut(BuildContext context) async{
                     child: Text("Sign Out", style: TextStyle(fontSize: 18)),
                   ),
                 ),
-              ),
-      ],
 
-      
-        
+                ],
       ),
     );
   }

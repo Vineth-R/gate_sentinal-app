@@ -16,16 +16,14 @@ class AuthMethods {
 
   // Google Sign In
   Future<void> signInWithGoogle(BuildContext context) async {
-    try{
-      final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
-      final GoogleSignIn googleSignIn = GoogleSignIn();
-
-      await googleSignIn.signOut();
+  try {
+    final FirebaseAuth firebaseAuth = FirebaseAuth.instance;
+    final GoogleSignIn googleSignIn = GoogleSignIn();
 
     final GoogleSignInAccount? googleSignInAccount =
         await googleSignIn.signIn();
 
-    if(googleSignInAccount == null){
+    if (googleSignInAccount == null) {
       return;
     }
 
@@ -33,36 +31,56 @@ class AuthMethods {
         await googleSignInAccount.authentication;
 
     final AuthCredential credential = GoogleAuthProvider.credential(
-        idToken: googleSignInAuthentication?.idToken,
-        accessToken: googleSignInAuthentication?.accessToken);
+      idToken: googleSignInAuthentication?.idToken,
+      accessToken: googleSignInAuthentication?.accessToken,
+    );
 
     UserCredential result = await firebaseAuth.signInWithCredential(credential);
-
     User? userDetails = result.user;
 
     if (userDetails != null) {
-      Map<String, dynamic> userInfoMap = {
-        "email": userDetails.email,
-        "name": userDetails.displayName,
-        "imgUrl": userDetails.photoURL,
-        "id": userDetails.uid
-      };
-      await DatabaseMethods()
-          .addUser(userDetails.uid, userInfoMap)
-          .then((value) {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
+      bool userExist = await DatabaseMethods().checkUserExists(userDetails.uid);
 
-      });
+      if (!userExist) {
+        Map<String, dynamic> userInfoMap = {
+          "email": userDetails.email,
+          "name": userDetails.displayName,
+          "imgUrl": userDetails.photoURL,
+          "id": userDetails.uid,
+        };
+
+        await DatabaseMethods().addUser(userDetails.uid, userInfoMap);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Signed up successfully', style: TextStyle(fontSize: 20.0)),
+            backgroundColor: Colors.green,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successfully', style: TextStyle(fontSize: 20.0)),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+
+      if (context.mounted) {
+        Navigator.push(
+          context, MaterialPageRoute(builder: (context) => HomePage()));
+      }
     }
-  }catch(e){
+  } catch (e) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: 
-      Text("Google Sign-In Failed: ${e.toString()}"),
-      backgroundColor: Colors.red
-    ));
+      SnackBar(
+        content: Text("Google Sign-In Failed: ${e.toString()}"),
+        backgroundColor: Colors.red,
+      ),
+    );
   }
-  }
+}
+
   Future<void> signOut() async {
     try {
       await auth.signOut(); // Firebase Sign Out

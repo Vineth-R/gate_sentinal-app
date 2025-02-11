@@ -119,7 +119,8 @@ class _LoginPageState extends State<LoginPage> {
             color: Color(0xFF333333).withAlpha(235), // Much darker shade with higher opacity
 
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(40)
+              topLeft: Radius.circular(40),
+              topRight: Radius.circular(40)
             )
           ),
         child: Form(

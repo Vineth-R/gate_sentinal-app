@@ -66,7 +66,8 @@ class Videorecordings extends StatelessWidget {
           decoration: BoxDecoration(
             color: Color(0xFF333333).withAlpha(235), 
             borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(40)
+              topLeft: Radius.circular(40),
+              topRight: Radius.circular(40)
             )
           ),
       child: const Center(

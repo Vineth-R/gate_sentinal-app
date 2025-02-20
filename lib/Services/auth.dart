@@ -9,6 +9,22 @@ import 'package:gate_sentinal/Services/database.dart';
 class AuthMethods {
   final FirebaseAuth auth = FirebaseAuth.instance;
 
+   // Trigger fingerprint action (enroll or delete)
+  Future<void> triggerFingerprintAction(String action, int fingerprintId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      if (action == "enroll") {
+        await DatabaseMethods().addFingerprint(user.uid, fingerprintId);
+        print("Fingerprint enrolled: $fingerprintId");
+      } else if (action == "delete") {
+        await DatabaseMethods().removeFingerprint(user.uid, fingerprintId);
+        print("Fingerprint deleted: $fingerprintId");
+      }
+    } else {
+      print("No user signed in");
+    }
+  }
+
   // Get current user
   Future<User?> getCurrentUser() async {
     return auth.currentUser;

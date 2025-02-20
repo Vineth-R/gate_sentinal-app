@@ -72,7 +72,7 @@ class Fingerprintlogs extends StatelessWidget {
           ),
         child: const Center(
         child: Text(
-          'Video Recordings page!',
+          'Fingerporint logs page!',
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
       ),

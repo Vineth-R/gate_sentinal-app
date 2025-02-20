@@ -173,7 +173,7 @@ void initState() {
                       print('Fingerprint Settings pressed');
                       Navigator.push(context, 
                       MaterialPageRoute(
-                        builder: (context) => const Fingerprintsettings(),
+                        builder: (context) => const FingerprintSettings(),
                       ),
                       );
                     },

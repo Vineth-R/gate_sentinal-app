@@ -1,35 +1,102 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
+import 'package:gate_sentinal/Services/database.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-class Fingerprintsettings extends StatelessWidget {
-  const Fingerprintsettings({super.key});
+class FingerprintSettings extends StatefulWidget {
+  const FingerprintSettings({super.key});
 
-  // Function to trigger the fingerprint action
-  void triggerFingerprintAction(String action, int fingerprintId) {
-    final user = FirebaseAuth.instance.currentUser; // Get signed-in user
-    if (user == null) {
-      print("No user signed in");
-      return;
+  @override
+  _FingerprintSettingsState createState() => _FingerprintSettingsState();
+}
+
+class _FingerprintSettingsState extends State<FingerprintSettings> {
+  List<int> fingerprintIds = [];
+   String username = "Loading..."; 
+
+  void initState(){
+    super.initState();
+    fetchUserName();
+    fetchFingerprints();
+  }
+
+ void fetchFingerprints() async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user != null) {
+    try {
+      // Get fingerprints from Firestore
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection("User")
+          .doc(user.uid)
+          .collection("Fingerprints")
+          .get();
+      setState(() {
+        fingerprintIds = snapshot.docs.map((doc) => doc["fingerprintId"] as int).toList();
+      });
+    } catch (e) {
+      print("Error fetching fingerprints: $e");
     }
+  }
+}
+ void fetchUserName() async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    print("No user signed in");
+    return;
+  }
 
-    DatabaseReference ref = FirebaseDatabase.instance.ref("users/${user.uid}/fingerprint_action");
+  try {
+    // Fetch username from Firestore
+    DocumentSnapshot snapshot = await FirebaseFirestore.instance
+        .collection("users")
+        .doc(user.uid)
+        .get();
 
-    ref.set({
-      "action": action, // "enroll" or "delete"
-      "fingerprint_id": fingerprintId, // Unique fingerprint ID
-    }).then((_) {
-      print("Fingerprint action '$action' triggered successfully!");
-    }).catchError((error) {
-      print("Failed to trigger fingerprint action: $error");
+    if (snapshot.exists) {
+      print("User found in Firestore: ${snapshot.data()}");
+      setState(() {
+        username = snapshot['name'] ?? 'Unknown';  // Get name field from Firestore
+      });
+    } else {
+      print("User document does not exist");
+      setState(() {
+        username = 'Unknown';
+      });
+    }
+  } catch (error) {
+    print("Failed to fetch username: $error");
+    setState(() {
+      username = 'Error';
     });
   }
+}
+
+ void triggerFingerprintAction(String action, int fingerprintId) async {
+  final user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    print("No user signed in");
+    return;
+  }
+
+  if (action == "enroll") {
+    await DatabaseMethods().addFingerprint(user.uid, fingerprintId);  // Use Firestore method
+    setState(() {
+      fingerprintIds.add(fingerprintId);
+    });
+  } else if (action == "delete") {
+    await DatabaseMethods().removeFingerprint(user.uid, fingerprintId);  // Use Firestore method
+    setState(() {
+      fingerprintIds.remove(fingerprintId);
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white, // Background Color
+      backgroundColor: Colors.white,
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(150),
         child: Container(
@@ -39,14 +106,14 @@ class Fingerprintsettings extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  const SizedBox(width: 10), // Space from the left side
+                  const SizedBox(width: 10),
                   IconButton(
                     icon: const Icon(Icons.arrow_back, color: Colors.black, size: 28),
                     onPressed: () {
                       Navigator.pop(context);
                     },
                   ),
-                  const SizedBox(width: 50), // Space between back button and logo
+                  const SizedBox(width: 50),
                   SizedBox(
                     width: 60,
                     height: 60,
@@ -55,7 +122,7 @@ class Fingerprintsettings extends StatelessWidget {
                       fit: BoxFit.contain,
                     ),
                   ),
-                  const SizedBox(width: 8), // Space between logo and title
+                  const SizedBox(width: 8),
                   Text(
                     "Gate Sentinel",
                     style: GoogleFonts.acme(
@@ -70,75 +137,101 @@ class Fingerprintsettings extends StatelessWidget {
           ),
         ),
       ),
-      body: Expanded(
-        flex: 7,
-        child: Container(
-          padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
-          decoration: BoxDecoration(
-            color: Color(0xFF333333).withAlpha(235),
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(40),
-              topRight: Radius.circular(40),
-            ),
+      body: Container(
+        padding: const EdgeInsets.fromLTRB(25.0, 50.0, 25.0, 20.0),
+        decoration: BoxDecoration(
+          color: const Color(0xFF333333).withAlpha(235),
+          borderRadius: const BorderRadius.only(
+            topLeft: Radius.circular(40),
+            topRight: Radius.circular(40),
           ),
-          child: Center(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-                  'Fingerprint settings page!',
-                  style: TextStyle(color: Colors.white, fontSize: 20),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Text(
+                'Fingerprint Settings',
+                style: TextStyle(color: Colors.white, fontSize: 20),
+              ),
+            ),
+            const SizedBox(height: 40),
+            // Add Fingerprint Button
+            ElevatedButton(
+              onPressed: () => triggerFingerprintAction("enroll", fingerprintIds.length + 1),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: Colors.white,
+                minimumSize: const Size(double.infinity, 50),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(18),
                 ),
-                const SizedBox(height: 40),
-                // Enroll Button
-                ElevatedButton(
-                  onPressed: () {
-                    triggerFingerprintAction("enroll", 1); // Change 1 to dynamic ID
-                  },
-                  child: Text('Enroll Fingerprint'),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    // primary: Colors.green, // Green for enroll
-                    // onPrimary: Colors.white,
-                    textStyle: TextStyle(fontSize: 16),
+              ),
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  "+ Add Fingerprint",
+                  style: GoogleFonts.amiko(
+                    color: Colors.black,
+                    fontSize: 16,
                   ),
                 ),
-                const SizedBox(height: 20),
-                // Delete Button
-                ElevatedButton(
-                  onPressed: () {
-                    triggerFingerprintAction("delete", 1); // Change 1 to dynamic ID
-                  },
-                  child: Text('Delete Fingerprint'),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                    // primary: Colors.red, // Red for delete
-                    // onPrimary: Colors.white,
-                    textStyle: TextStyle(fontSize: 16),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(height: 20),
+            // Display Enrolled Fingerprints
+            Expanded(
+              child: ListView.builder(
+                itemCount: fingerprintIds.length,
+                itemBuilder: (context, index) {
+                  int fingerprintId = fingerprintIds[index];
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          "$username - $fingerprintId",
+                          style: GoogleFonts.amiko(
+                            color: Colors.black,
+                            fontSize: 16,
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(Icons.delete, color: Colors.black),
+                          onPressed: () => triggerFingerprintAction("delete", fingerprintId),
+                        ),
+                      ],
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
   }
 }
 
-// Custom AppBar Shape
-class CustomAppBarClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    Path path = Path();
-    path.lineTo(0, size.height);
-    path.lineTo(size.width / 2, size.height - 80);
-    path.lineTo(size.width, size.height);
-    path.lineTo(size.width, 0);
-    path.close();
-    return path;
-  }
 
-  @override
-  bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-}
+// // Custom AppBar Shape
+// class CustomAppBarClipper extends CustomClipper<Path> {
+//   @override
+//   Path getClip(Size size) {
+//     Path path = Path();
+//     path.lineTo(0, size.height);
+//     path.lineTo(size.width / 2, size.height - 80);
+//     path.lineTo(size.width, size.height);
+//     path.lineTo(size.width, 0);
+//     path.close();
+//     return path;
+//   }
+
+//   @override
+//   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
+// }

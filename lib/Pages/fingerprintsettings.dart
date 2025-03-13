@@ -1,100 +1,120 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:gate_sentinal/Services/database.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class FingerprintSettings extends StatefulWidget {
-  const FingerprintSettings({super.key});
+  const FingerprintSettings({Key? key}) : super(key: key);
 
   @override
   _FingerprintSettingsState createState() => _FingerprintSettingsState();
 }
 
 class _FingerprintSettingsState extends State<FingerprintSettings> {
-  List<int> fingerprintIds = [];
-   String username = "Loading..."; 
+  String username = "Loading...";
+  final DatabaseReference _database = FirebaseDatabase.instance.ref();
 
-  void initState(){
+  @override
+  void initState() {
     super.initState();
     fetchUserName();
-    fetchFingerprints();
   }
 
- void fetchFingerprints() async {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user != null) {
+  Future<void> fetchUserName() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("No user signed in");
+      return;
+    }
+    print("Fetching username for UID: ${user.uid}");
+
     try {
-      // Get fingerprints from Firestore
-      QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection("User")
-          .doc(user.uid)
-          .collection("Fingerprints")
-          .get();
+      DataSnapshot snapshot = await _database.child("users/${user.uid}/name").get();
+      if (snapshot.exists) {
+        setState(() {
+          username = snapshot.value.toString();
+        });
+      } else {
+        setState(() {
+          username = user.displayName ?? 'Unknown';
+        });
+      }
+    } catch (error) {
+      print("Failed to fetch username: $error");
       setState(() {
-        fingerprintIds = snapshot.docs.map((doc) => doc["fingerprintId"] as int).toList();
-      });
-    } catch (e) {
-      print("Error fetching fingerprints: $e");
-    }
-  }
-}
- void fetchUserName() async {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user == null) {
-    print("No user signed in");
-    return;
-  }
-
-  try {
-    // Fetch username from Firestore
-    DocumentSnapshot snapshot = await FirebaseFirestore.instance
-        .collection("users")
-        .doc(user.uid)
-        .get();
-
-    if (snapshot.exists) {
-      print("User found in Firestore: ${snapshot.data()}");
-      setState(() {
-        username = snapshot['name'] ?? 'Unknown';  // Get name field from Firestore
-      });
-    } else {
-      print("User document does not exist");
-      setState(() {
-        username = 'Unknown';
+        username = 'Error';
       });
     }
-  } catch (error) {
-    print("Failed to fetch username: $error");
-    setState(() {
-      username = 'Error';
-    });
-  }
-}
-
- void triggerFingerprintAction(String action, int fingerprintId) async {
-  final user = FirebaseAuth.instance.currentUser;
-  if (user == null) {
-    print("No user signed in");
-    return;
   }
 
-  if (action == "enroll") {
-    await DatabaseMethods().addFingerprint(user.uid, fingerprintId);  // Use Firestore method
-    setState(() {
-      fingerprintIds.add(fingerprintId);
-    });
-  } else if (action == "delete") {
-    await DatabaseMethods().removeFingerprint(user.uid, fingerprintId);  // Use Firestore method
-    setState(() {
-      fingerprintIds.remove(fingerprintId);
-    });
-  }
-}
+  Future<int> getNextAvailableFingerprintId() async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return 1;
 
+    DataSnapshot snapshot = await _database.child("users/${user.uid}/Fingerprints").get();
+    if (!snapshot.exists) return 1;
+
+    Map<dynamic, dynamic> fingerprints = snapshot.value as Map<dynamic, dynamic>;
+    List<int> existingIds = fingerprints.keys.map((key) => int.parse(key)).toList();
+    existingIds.sort();
+
+    for (int i = 1; i <= existingIds.length + 1; i++) {
+      if (!existingIds.contains(i)) {
+        return i; // Return the first missing ID
+      }
+    }
+    return existingIds.length + 1;
+  }
+
+  void triggerFingerprintAction(String action, int fingerprintId) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      print("No user signed in");
+      return;
+    }
+
+    try {
+      await _database.child("fingerprintCommands/${user.uid}").set({
+        "uid": user.uid,
+        "action": action, // "enroll" or "delete"
+        "fingerprintId": fingerprintId,
+        "timestamp": ServerValue.timestamp,
+      });
+
+      print("Command sent: $action Fingerprint ID $fingerprintId");
+    } catch (error) {
+      print("Failed to send command: $error");
+    }
+  }
+
+  Future<void> confirmDelete(int fingerprintId) async {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Confirm Deletion"),
+        content: Text("Are you sure you want to delete this fingerprint?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text("Cancel"),
+          ),
+          TextButton(
+            onPressed: () {
+              triggerFingerprintAction("delete", fingerprintId);
+              Navigator.of(context).pop();
+            },
+            child: Text("Delete"),
+          ),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
+    final user = FirebaseAuth.instance.currentUser;
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: PreferredSize(
@@ -158,7 +178,10 @@ class _FingerprintSettingsState extends State<FingerprintSettings> {
             const SizedBox(height: 40),
             // Add Fingerprint Button
             ElevatedButton(
-              onPressed: () => triggerFingerprintAction("enroll", fingerprintIds.length + 1),
+              onPressed: () async {
+                int nextId = await getNextAvailableFingerprintId();
+                triggerFingerprintAction("enroll", nextId);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.white,
                 minimumSize: const Size(double.infinity, 50),
@@ -180,33 +203,54 @@ class _FingerprintSettingsState extends State<FingerprintSettings> {
             const SizedBox(height: 20),
             // Display Enrolled Fingerprints
             Expanded(
-              child: ListView.builder(
-                itemCount: fingerprintIds.length,
-                itemBuilder: (context, index) {
-                  int fingerprintId = fingerprintIds[index];
-                  return Container(
-                    margin: const EdgeInsets.only(bottom: 10),
-                    padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "$username - $fingerprintId",
-                          style: GoogleFonts.amiko(
-                            color: Colors.black,
-                            fontSize: 16,
-                          ),
+              child: StreamBuilder<DatabaseEvent>(
+                stream: _database.child("users/${user?.uid}/Fingerprints").onValue,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  DataSnapshot data = snapshot.data!.snapshot;
+                  if (!data.exists) {
+                    return const Center(
+                      child: Text(
+                        "No fingerprints enrolled yet",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
+
+                  Map<dynamic, dynamic> fingerprints = data.value as Map<dynamic, dynamic>;
+                  return ListView.builder(
+                    itemCount: fingerprints.length,
+                    itemBuilder: (context, index) {
+                      String key = fingerprints.keys.elementAt(index);
+                      int fingerprintId = int.parse(key);
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 10),
+                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(18),
                         ),
-                        IconButton(
-                          icon: const Icon(Icons.delete, color: Colors.black),
-                          onPressed: () => triggerFingerprintAction("delete", fingerprintId),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "$username - $fingerprintId",
+                              style: GoogleFonts.amiko(
+                                color: Colors.black,
+                                fontSize: 16,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.black),
+                              onPressed: () => confirmDelete(fingerprintId),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      );
+                    },
                   );
                 },
               ),
@@ -217,21 +261,3 @@ class _FingerprintSettingsState extends State<FingerprintSettings> {
     );
   }
 }
-
-
-// // Custom AppBar Shape
-// class CustomAppBarClipper extends CustomClipper<Path> {
-//   @override
-//   Path getClip(Size size) {
-//     Path path = Path();
-//     path.lineTo(0, size.height);
-//     path.lineTo(size.width / 2, size.height - 80);
-//     path.lineTo(size.width, size.height);
-//     path.lineTo(size.width, 0);
-//     path.close();
-//     return path;
-//   }
-
-//   @override
-//   bool shouldReclip(CustomClipper<Path> oldClipper) => false;
-// }

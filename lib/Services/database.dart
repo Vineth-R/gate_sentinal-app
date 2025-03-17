@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class DatabaseMethods {
   final FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -9,9 +10,10 @@ class DatabaseMethods {
     return doc.exists;
   }
 
-  /// Add user to Firestore (Sign-Up)
+  /// Add user to FirebaseDatabase (Sign-Up)
   Future<void> addUser(String userId, Map<String, dynamic> userInfoMap) async {
-    await firestore.collection("User").doc(userId).set(userInfoMap);
+    final databaseReference = FirebaseDatabase.instance.ref();
+    await databaseReference.child("User").set(userInfoMap);
   }
 
   /// Add a fingerprint to the user's document

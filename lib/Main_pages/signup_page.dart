@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:gate_sentinal/Main_pages/loginpage.dart';
 import 'package:gate_sentinal/Pages/home.dart';
@@ -43,10 +44,12 @@ class _SignupPageState extends State<SignupPage> {
         if (user != null) {
           await user.updateDisplayName(fullnamecontroller.text.trim());
 
-          await FirebaseFirestore.instance.collection("users").doc(user.uid).set({
+
+            await FirebaseDatabase.instance.ref().child("User").child(user.uid).set({
             "name": fullnamecontroller.text.trim(),
             "email": emailcontroller.text.trim(),
-            "createdAt": Timestamp.now(),
+            "id": user.uid,
+            "createdAt": DateTime.now().toIso8601String(),
           });
 
           ScaffoldMessenger.of(context).showSnackBar(

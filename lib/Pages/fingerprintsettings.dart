@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class FingerprintSettings extends StatefulWidget {
-  const FingerprintSettings({Key? key}) : super(key: key);
+  const FingerprintSettings({super.key});
 
   @override
   _FingerprintSettingsState createState() => _FingerprintSettingsState();
@@ -52,18 +52,40 @@ class _FingerprintSettingsState extends State<FingerprintSettings> {
     if (user == null) return 1;
 
     DataSnapshot snapshot = await _database.child("users/${user.uid}/Fingerprints").get();
-    if (!snapshot.exists) return 1;
+    if (!snapshot.exists || snapshot.value == null) return 1;
 
-    Map<dynamic, dynamic> fingerprints = snapshot.value as Map<dynamic, dynamic>;
-    List<int> existingIds = fingerprints.keys.map((key) => int.parse(key)).toList();
-    existingIds.sort();
+    print("Data type of snapshot.value: ${snapshot.value.runtimeType}");
+    if (snapshot.value is Map) {
+      Map<dynamic, dynamic> fingerprints = snapshot.value as Map<dynamic, dynamic>;
+      List<int> existingIds = fingerprints.keys.map((key) => int.parse(key)).toList();
+      existingIds.sort();
 
-    for (int i = 1; i <= existingIds.length + 1; i++) {
-      if (!existingIds.contains(i)) {
-        return i; // Return the first missing ID
+      for (int i = 1; i <= existingIds.length + 1; i++) {
+        if (!existingIds.contains(i)) {
+          return i; // Return the first missing ID
+        }
       }
+      return existingIds.length + 1;
+    } else if (snapshot.value is List) {
+      List<dynamic> fingerprints = snapshot.value as List<dynamic>;
+      List<int> existingIds = [];
+      for (int i = 0; i < fingerprints.length; i++) {
+        if (fingerprints[i] != null) {
+          existingIds.add(i + 1); // Assuming list index + 1 as fingerprintId
+        }
+      }
+      existingIds.sort();
+
+      for (int i = 1; i <= existingIds.length + 1; i++) {
+        if (!existingIds.contains(i)) {
+          return i; // Return the first missing ID
+        }
+      }
+      return existingIds.length + 1;
+    } else {
+      print("Unexpected data type: ${snapshot.value.runtimeType}");
+      return 1;
     }
-    return existingIds.length + 1;
   }
 
   void triggerFingerprintAction(String action, int fingerprintId) async {
@@ -211,6 +233,8 @@ class _FingerprintSettingsState extends State<FingerprintSettings> {
                   }
 
                   DataSnapshot data = snapshot.data!.snapshot;
+                  print("Data type of data.value: ${data.value.runtimeType}");
+                  print("Data value: ${data.value}");
                   if (!data.exists) {
                     return const Center(
                       child: Text(
@@ -220,38 +244,83 @@ class _FingerprintSettingsState extends State<FingerprintSettings> {
                     );
                   }
 
-                  Map<dynamic, dynamic> fingerprints = data.value as Map<dynamic, dynamic>;
-                  return ListView.builder(
-                    itemCount: fingerprints.length,
-                    itemBuilder: (context, index) {
-                      String key = fingerprints.keys.elementAt(index);
-                      int fingerprintId = int.parse(key);
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 10),
-                        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              "$username - $fingerprintId",
-                              style: GoogleFonts.amiko(
-                                color: Colors.black,
-                                fontSize: 16,
+                  if (data.value is Map) {
+                    Map<dynamic, dynamic> fingerprints = data.value as Map<dynamic, dynamic>;
+                    return ListView.builder(
+                      itemCount: fingerprints.length,
+                      itemBuilder: (context, index) {
+                        String key = fingerprints.keys.elementAt(index);
+                        int fingerprintId = int.parse(key);
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 10),
+                          padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                "$username - $fingerprintId",
+                                style: GoogleFonts.amiko(
+                                  color: Colors.black,
+                                  fontSize: 16,
+                                ),
                               ),
+                              IconButton(
+                                icon: const Icon(Icons.delete, color: Colors.black),
+                                onPressed: () => confirmDelete(fingerprintId),
+                              ),
+                            ],
+                          ),
+                        );
+                      },
+                    );
+                  } else if (data.value is List) {
+                    List<dynamic> fingerprints = data.value as List<dynamic>;
+                    return ListView.builder(
+                      itemCount: fingerprints.length,
+                      itemBuilder: (context, index) {
+                        if (fingerprints[index] != null) {
+                          int fingerprintId = index + 1; // Assuming list index + 1 as fingerprintId
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 10),
+                            padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(18),
                             ),
-                            IconButton(
-                              icon: const Icon(Icons.delete, color: Colors.black),
-                              onPressed: () => confirmDelete(fingerprintId),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "$username - $fingerprintId",
+                                  style: GoogleFonts.amiko(
+                                    color: Colors.black,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                IconButton(
+                                  icon: const Icon(Icons.delete, color: Colors.black),
+                                  onPressed: () => confirmDelete(fingerprintId),
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  );
+                          );
+                        } else {
+                          return Container();
+                        }
+                      },
+                    );
+                  } else {
+                    return const Center(
+                      child: Text(
+                        "Unexpected data type",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    );
+                  }
                 },
               ),
             ),

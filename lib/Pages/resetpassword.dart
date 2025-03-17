@@ -14,6 +14,7 @@ class _ResetpasswordState extends State<Resetpassword> {
   final TextEditingController emailController = TextEditingController();
 
 
+  @override
   void initState(){
     super.initState();
     getCurrentUser();

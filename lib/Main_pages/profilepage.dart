@@ -76,6 +76,7 @@ void signOut(BuildContext context) async {
   }
 }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor:  Colors.white, // Background Color

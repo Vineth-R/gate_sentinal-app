@@ -5,6 +5,7 @@ import 'package:gate_sentinal/Main_pages/signup_page.dart';
 import 'package:gate_sentinal/Main_pages/welcomepage.dart';
 import 'package:gate_sentinal/Pages/home.dart';
 import 'package:gate_sentinal/Services/auth.dart';
+import 'package:gate_sentinal/Services/network_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 
 class LoginPage extends StatefulWidget {
@@ -30,37 +31,111 @@ class _LoginPageState extends State<LoginPage> {
 
   Future<void> userLogin() async {
     if (_formSignInKey.currentState!.validate()) {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(color: Colors.white),
+        ),
+      );
+
       try {
+        // Check internet connection first
+        bool hasInternet = await NetworkHelper.checkInternetConnection();
+        if (!hasInternet) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'No internet connection. Please check your network settings.',
+                style: TextStyle(fontSize: 18.0),
+              ),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 5),
+            ),
+          );
+          return;
+        }
+
+        // Check Firebase connection
+        bool hasFirebaseConnection = await NetworkHelper.checkFirebaseConnection();
+        if (!hasFirebaseConnection) {
+          Navigator.pop(context);
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                'Cannot connect to Firebase. Please check your network settings.',
+                style: TextStyle(fontSize: 18.0),
+              ),
+              backgroundColor: Colors.red,
+              duration: Duration(seconds: 5),
+            ),
+          );
+          return;
+        }
+
+        // Add timeout to catch network issues
         await FirebaseAuth.instance.signInWithEmailAndPassword(
           email: emailController.text.trim(),
           password: passwordController.text.trim(),
-        );
+        ).timeout(const Duration(seconds: 30));
+        
+        // Hide loading indicator
+        Navigator.pop(context);
+        
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Login successfully', style: TextStyle(fontSize: 20.0)),
             backgroundColor: Colors.green,
-          ),);
+          ),
+        );
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => const HomePage()),
         );
       } on FirebaseAuthException catch (e) {
+        // Hide loading indicator
+        Navigator.pop(context);
+        
         print("FirebaseAuthException Code: ${e.code}");
+        print("FirebaseAuthException Message: ${e.message}");
         String errorMessage = 'Login failed';
+        
         if (e.code == 'user-not-found') {
           errorMessage = 'No user found for that email.';
         } else if (e.code == 'wrong-password') {
           errorMessage = 'Wrong password.';
         } else if (e.code == "invalid-credential") {
           errorMessage = "The provided credential is invalid.";
+        } else if (e.code == 'network-request-failed') {
+          errorMessage = "Network error. Please check your internet connection and try again.";
+        } else if (e.code == 'too-many-requests') {
+          errorMessage = "Too many failed attempts. Please try again later.";
         } else {
-          errorMessage = "An unknown error occurred: ${e.message}";
+          errorMessage = "An error occurred: ${e.message}";
         }
+        
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(errorMessage, style: const TextStyle(fontSize: 18.0)),
             backgroundColor: Colors.red,
-            
+            duration: const Duration(seconds: 5),
+          ),
+        );
+      } catch (e) {
+        // Hide loading indicator
+        Navigator.pop(context);
+        
+        print("General Exception: $e");
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Network error. Please check your internet connection and try again.",
+              style: const TextStyle(fontSize: 18.0),
+            ),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 5),
           ),
         );
       }

@@ -62,6 +62,7 @@ class _VideorecordingsState extends State<Videorecordings> {
       }
     } catch (e) {
       print('Error fetching playlist: $e');
+      
       setState(() {
         _error = 'Failed to load playlist. Using fallback videos.';
       });

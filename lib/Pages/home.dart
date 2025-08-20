@@ -196,9 +196,9 @@ class _HomePageState extends State<HomePage> {
                           ),
                           const SizedBox(height: 8),
                           _buildTextButton(
-                            label: 'Fingerprint Logs',
+                            label: 'Motion Logs',
                             onPressed: () {
-                              print('Fingerprint Logs pressed');
+                              print('Motion Logs pressed');
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(

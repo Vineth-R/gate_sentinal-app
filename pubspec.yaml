@@ -46,6 +46,7 @@ dependencies:
   youtube_player_flutter: ^9.0.3
   http: ^1.1.0
   webview_flutter: ^4.4.2
+  flutter_local_notifications: ^17.2.2
   # the_apple_sign_in: ^1.1.1
   # flutter_facebook_auth: ^7.1.1
 

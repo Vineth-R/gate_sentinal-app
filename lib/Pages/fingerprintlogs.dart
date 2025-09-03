@@ -48,7 +48,7 @@ class _FingerprintlogsState extends State<Fingerprintlogs> {
   bool _isLoading = true;
   Alert? _latestAlert;
   final NotificationService _notificationService = NotificationService();
-  Set<String> _processedAlertIds = {}; // Track processed alerts to avoid duplicate notifications
+  final Set<String> _processedAlertIds = {}; // Track processed alerts to avoid duplicate notifications
 
   @override
   void initState() {

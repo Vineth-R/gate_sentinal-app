@@ -4,7 +4,6 @@ import 'package:gate_sentinal/Pages/camerafeed.dart';
 import 'package:gate_sentinal/Pages/fingerprintlogs.dart';
 import 'package:gate_sentinal/Pages/fingerprintsettings.dart';
 import 'package:gate_sentinal/Pages/videorecordings.dart';
-import 'package:gate_sentinal/Pages/displaynotices.dart';
 import 'package:gate_sentinal/Services/gate_control_service.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';

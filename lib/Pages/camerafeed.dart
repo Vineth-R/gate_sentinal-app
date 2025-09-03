@@ -22,7 +22,7 @@ class _CamerafeedState extends State<Camerafeed> {
   }
 
   void _initializePlayer() {
-    const String videoId = 'SneMtI6e3aY'; // 24/7 LoFi music stream (reliable)
+    const String videoId = 'SneMtI6e3a'; // 24/7 LoFi music stream (reliable)
     _controller = YoutubePlayerController(
       initialVideoId: videoId,
       flags: const YoutubePlayerFlags(

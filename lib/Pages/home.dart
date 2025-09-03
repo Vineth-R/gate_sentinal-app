@@ -221,18 +221,7 @@ class _HomePageState extends State<HomePage> {
                             },
                           ),
                           const SizedBox(height: 8),
-                          _buildTextButton(
-                            label: 'Display Notices',
-                            onPressed: () {
-                              print('Display Notices pressed');
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const Displaynotices(),
-                                ),
-                              );
-                            },
-                          ),
+                          
                         ],
                       ),
                     ),
